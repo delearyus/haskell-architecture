@@ -1,0 +1,17 @@
+switch a1
+switch a2
+
+switch b1
+switch b2
+
+and and1 a1 b1
+nor nor1 a1 b1
+or  or1  and1 nor1
+
+and and2 a2 b2
+nor nor2 a2 b2
+or  or2  and2 nor2
+
+and and3 or1 or2
+
+light c1 and3

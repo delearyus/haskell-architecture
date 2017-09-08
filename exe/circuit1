@@ -1,0 +1,9 @@
+switch s1
+switch s2
+switch s3
+switch s4
+
+light l1 s1
+light l2 s2
+light l3 s3
+light l4 s4
