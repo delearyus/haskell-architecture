@@ -1,4 +1,4 @@
-#Haskell CS 353 Implementations
+# Haskell CS 353 Implementations
 
 These are the labs for CS 353 from a certain unnamed college with a certain
 unnamed professor, implemented in Haskell.  Mostly I did this for fun, and to
