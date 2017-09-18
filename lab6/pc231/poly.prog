@@ -1,0 +1,26 @@
+	READ R0,DD		;get order of polynomial
+	COPY R0,R3
+	DATA #data
+	COPY DR,R2
+	DATA #phaseb
+	COPY DR,J0
+	DATA #halt
+	COPY DR,J1
+	DATA #nomult
+	COPY DR,J2
+	DATA #fincl
+	COPY DR,J3
+#rin	READ R1,DD		;get a coefficient
+	STORE R1,R2		;store the coefficient
+	INC R0,-1		;subtract 1 from term
+	JPIF R0,EZ,J0		;if done, move to phase 2
+	INC R2,1		;else, move to the next space in memory and repeat
+	JUMP #rin
+#phaseb	READ R0,DD		;get an x value
+	ZERO R1			;initialize working total to 0
+	JPIF R0,EZ,J1		;if x=0,halt
+	COPY R3,R4		;get a copy of the coefficient count
+	DATA #data
+	COPY DR,R2
+#phasec	LOAD DR,R2		;load a coefficient to the data register
+	ADD DR,R1		;add the coefficient to the working total

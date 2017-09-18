@@ -1,0 +1,134 @@
+;Take two items pointed at by R1 and R1+1, and swap them if *R1 > *R1 + 1
+
+		JUMP #readin
+
+			;-------;
+			; SETUP ;
+			;-------;
+
+		DATA #stack
+		COPY DR, R1			;store the pointer to the stack at R1
+
+		DATA 'B'
+		STORE DR, R1			;put 12 on the stack
+
+		INC R1, 1			;and move to the next spot
+		DATA 'C'
+		STORE DR, R1			;and put 5 on the stack
+
+		INC R1, 1
+		DATA 'A'
+		STORE DR, R1
+
+		DATA #stack
+		COPY DR, R1			;reinitialize the stack variable
+
+		SET R0, 2			;set number of items on the stack
+
+		JUMP #swap			;swap the two elements
+
+			;--------;
+			; READIN ;
+			;--------;
+
+#readin		DATA #stack
+		COPY DR, R1			;initialize stack pointer
+		DATA #rdone
+		COPY DR, J0
+
+#rloop		READ R2,AD			;get an ascii character
+		STORE R2,R1			;store it
+		DATA '.'
+		SUB DR, R2
+		JPIF R2, EZ, J0			;if char is '.', be done and don't update the stack count so it wont really be 'on' stack
+		INC R0, 1
+		INC R1, 1			;update number of items and stack pointer
+		COPY R0,R7
+		JUMP #rloop
+
+#rdone		JUMP #pass
+
+
+			;------;
+			; PASS ;
+			;------;
+
+#pass		DATA 'P'
+		;WRITE DR,AD
+		;WRITE R0,DD
+
+		DATA #stack			;initialize new stack pointer in R1
+		COPY DR,R1
+
+		COPY R0,R4			;get a per-pass copy of the number of items on the stack
+		INC R4,-1			;lower it by one so you don't swap the last element with the after-last element
+
+#passloop	DATA #sort
+		COPY DR,J1
+		JPIF R4,EZ,J1			;if R3 is 0 (ie no more elements), be finished
+
+		INC R4, -1
+		JUMP #swap			;otherwise do another swap
+
+			;------;		;at this point in time, R1 a pointer value somewhere on the stack,
+			; SWAP ;		
+			;------;
+
+#swap		DATA #endswp			;initialize jump for when done
+		COPY DR,J0
+
+		DATA 'S'
+		;WRITE DR,AD
+		;WRITE R1,DD
+		;WRITE R4,DD
+
+		LOAD R3,R1			;load first item at R1
+		INC R1, 1			;move down the stack
+		LOAD R2,R1			;load the second item at R1+1
+
+		SUB R2,R3			;check which one is bigger
+		JPIF R3,LZ,J0			;if we're done, then finish now
+
+		ADD R2, R3			;otherwise store them in reverse order
+		STORE R3, R1
+		INC R1, -1
+		STORE R2,R1
+		INC R1, 1			;R1 is now equal to R1+1, ready for the next swap
+
+		DATA 'Y'
+		;WRITE DR,AD
+
+		JUMP #endswp
+
+#endswp		JUMP #passloop
+
+			;------;
+			; SORT ;
+			;------;
+
+#sort		INC R7,-1			;lower the number of unsorted items
+		DATA #return
+		COPY DR,J2
+		JPIF R7, EZ, J2			;if no unsorted elements, be finished
+		
+		JUMP #pass			;otherwise do another passthrough
+
+			;--------;
+			; RETURN ;
+			;--------;
+
+#return DATA #stack			;reinitialize stack pointer
+		COPY DR, R8
+		DATA #halt
+		COPY DR, J0
+
+#ploop		LOAD DR, R8			;load a value off the stack
+		WRITE DR, AD			;print it out
+		INC R8, 1
+		INC R0, -1
+		JPIF R0, EZ, J0			;if no more elements on the stack, we're finished
+		JUMP #ploop			;otherwise print out another element
+
+#halt		HALT
+
+#stack		HALT

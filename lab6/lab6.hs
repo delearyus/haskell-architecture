@@ -4,7 +4,7 @@
 module Main where
 
 import Data.Array (listArray,Array,(!),(//),assocs,elems,ixmap)
-import Data.Char (digitToInt, ord, chr)
+import Data.Char (digitToInt, ord, chr, toLower)
 import Control.Applicative
 import Control.Lens
 import Data.List (unfoldr)
@@ -64,7 +64,6 @@ pAlpha  = ["305", "9EA", "35A", "9E0"
 
 
 
-main = return ()
 
 -- Sample Values --
 
@@ -443,4 +442,26 @@ columns h va p cs = unlines . map concat . getZipList $
 
 
 -- Program IO --
+
+main = do
+  putStrLn "Enter a filename to be run:"
+  fname <- getLine :: IO FilePath
+  file <- readFile fname
+  let initState = loadProg $ words file
+  putStrLn $ showPC initState
+  let getInput = do
+      putStrLn "Press r to run or s to step through execution."
+      choice <- getChar
+      if toLower choice `elem` "rs"
+          then return choice
+          else do
+            putStrLn "Invalid choice, try again"
+            getInput
+  choice <- getInput
+  putStrLn []
+  hFlush stdout
+  if choice == 'r'
+      then run initState
+      else stepthrough initState
+          
 

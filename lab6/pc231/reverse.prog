@@ -1,0 +1,22 @@
+	DATA #data
+	COPY DR,J0
+	DATA #return
+	COPY DR,J1
+	DATA #finish
+	COPY DR,J2
+	READ R0,DD	;fake
+	SET R1,15
+#rin	READ R0,AD
+	STORE R0,J0
+	INC R1,-1
+	JPIF R1,EZ,J1
+	INC J0,1
+	JUMP #rin
+#return	LOAD R0,J0	;load char off stack into r0
+	JPIF R0,EZ,J2	;if stack is empty, finish
+	WRITE R0,AD
+	INC J0,-1
+	JUMP #return
+#finish	HALT
+	HALT
+#data	HALT

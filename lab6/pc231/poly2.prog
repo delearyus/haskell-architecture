@@ -1,0 +1,62 @@
+	READ R0,DD		;get the order of the polynomial
+	DATA #fstack
+	COPY DR,R9		;this is the location of the first coefficient in ram
+	COPY DR,R8		;this is the location of the next available spot in the stack
+#readin	READ R1,DD		;get the coefficient for a term
+	STORE R1,R8		;store it in the next available spot on the stack
+	INC R8,1		;and move the pointer to the next available spot to reflect this
+	DATA #getx
+	COPY DR,J0		;set up the next jump
+	JPIF R0,EZ,J0		;if the remaining order is 0 (all coefs have been read in), done.
+	INC R0,-1		;otherwise lower the remaining coefs by 1
+	JUMP #readin		;and go back through the loop
+#getx	READ R0,DD		;get an x value from the user to evaluate
+	ZERO R7			;reset the working total
+	DATA #fstack
+	COPY DR,R9		;reset the start of the stack
+	DATA #fin
+	COPY DR,J0		;set up the next jump
+	JPIF R0,EZ,J0		;if the x value is 0, we're finished
+#cloop	LOAD R1,R9		;get the first coefficient from the stack
+	JUMP #mult		;jump to the subroutine that multiplies the total in R7 by x in R0
+#amult	ADD R1,R7		;and then add x value to the working total
+	INC R9,1		;update the stack pointer
+	DATA #return
+	COPY DR,J0		;set up the next jump
+	COPY R9,DR
+	SUB R8,DR		;compute the difference R8-R9 (number of items left)
+	JPIF DR,EZ,J0		;if finished, return
+	JUMP #cloop		;else, repeat the loop again
+#return WRITE R7,DD		;return the final total
+	JUMP #getx		;and get another x value
+#mult	ZERO R2			;this is the shift counter
+#loops	SET R4,1		;this is the mask, it gets remade each iteration
+	COPY R2,R3		;copy of the shift counter
+	DATA #shiftd
+	COPY DR,J0
+#shift	JPIF R3,EZ,J0		;if R3 is zero, be done
+	SHIFT R4,-1		;otherwise, shift r4 and decrement r3
+	INC R3,-1
+	JUMP #shift		;and loop to check again
+#shiftd	COPY R4,R3		;make a little space by overwriting r3, we don't need it anymore
+	ZERO R4
+	DATA #skip
+	COPY DR,J0
+	AND R0,R3		;new value is nz if x has that digit else 0
+	JPIF R3,EZ,J0		;if not, skip this step
+	ADD R7,R6		;r6 is the real working total
+#skip	SHIFT R7,-1
+	DATA #done
+	COPY DR,J0
+	DATA 11
+	SUB R2,DR
+	JPIF DR,EZ,J0		;if we're done, be done
+	INC R2,1		;else increment shift counter
+	JUMP #loops		;and loop again
+#done	COPY R6,R7
+	ZERO R6
+	ZERO R3
+	ZERO R4
+	JUMP #amult		;and go back to where we left off
+#fin	HALT
+#fstack HALT			;beginning of the stack

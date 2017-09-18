@@ -1,0 +1,17 @@
+	READ R0,DD	;get first
+	READ R1,DD	;get second
+	ZERO R5		;total
+	SET R2,8	;mask counter
+#mloop	INC R2,-1
+	ZERO R3		;make sure mask is 0
+	SET R3,1	;set up mask
+	DATA #shift	;get ready to modify the program
+	LOAD R4,DR	;hold on to your hats folks
+	ADD R3,R4	;increment it by the mask amount
+	DATA #shifts	;figure out where the shift statement goes
+	STORE R4,DR	;put the shift statement into the program
+#shifts	HALT		;this will get changed to SHIFT R3,n where n is val in R4
+	AND R0,R3	;apply the mask to R0 so that it only has one bit or none
+	JPIF R3,EZ,J0	;if R0 doesn't have digit n, go on to the next one
+	COPY R1,DR	;get a copy of R1
+	SHIFT DR,

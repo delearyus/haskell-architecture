@@ -1,0 +1,31 @@
+	READ R0,DD		;get x
+	READ R7,DD		;get total
+	ZERO R2			;this is the shift counter
+#loops	SET R4,1		;this is the mask, it gets remade each iteration
+	COPY R2,R3		;copy of the shift counter
+	DATA #shiftd
+	COPY DR,J0
+#shift	JPIF R3,EZ,J0		;if R3 is zero, be done
+	SHIFT R4,-1		;otherwise, shift r4 and decrement r3
+	INC R3,-1
+	JUMP #shift		;and loop to check again.
+#shiftd COPY R4,R3		;make a little space by overwriting R3, we don't need it anymore
+	ZERO R4
+	DATA #skip
+	COPY DR,J0
+	AND R0,R3		;new value is 1 if x has that digit else 0
+	JPIF R3,EZ,J0		;if not, skip this step
+	ADD R7,R6		;r6 is the real working total
+#skip	SHIFT R7,-1
+	DATA #done
+	COPY DR,J0
+	DATA 11
+	SUB R2,DR		;data register holds number of shifts left
+	JPIF DR,EZ,J0		;if we're done, be done
+	INC R2,1		;increment the shift counter
+	JUMP #loops
+#done	COPY R6,R7
+	ZERO R6
+	ZERO R3
+	ZERO R4
+	WRITE R7,DD
